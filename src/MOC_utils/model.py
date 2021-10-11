@@ -140,14 +140,14 @@ def load_imagenet_pretrained_model(opt, model):
     return model
 
 
-def load_coco_pretrained_model(opt, model):
-    if opt.arch == 'dla_34':
+def load_coco_pretrained_model(model, arch, print_log):
+    if arch == 'dla_34':
         print('load coco pretrained dla_34')
         model_path = '../experiment/modelzoo/coco_dla.pth'
-    elif opt.arch == 'resnet_18':
+    elif arch == 'resnet_18':
         print('load coco pretrained resnet_18')
         model_path = '../experiment/modelzoo/coco_resdcn18.pth'
-    elif opt.arch == 'resnet_101':
+    elif arch == 'resnet_101':
         print('load coco pretrained resnet_101')
         model_path = '../experiment/modelzoo/coco_resdcn101.pth'
     else:
@@ -172,17 +172,15 @@ def load_coco_pretrained_model(opt, model):
             new_key = 'backbone.' + key
             new_state_dict[new_key] = value
 
-    if 'resnet' in opt.arch:
+    if 'resnet' in arch:
         new_state_dict = convert_resnet_dcn(new_state_dict)
 
     print('load coco pretrained successfully')
-    if opt.print_log:
+    if print_log:
         check_state_dict(model.state_dict(), new_state_dict)
         print('check done!')
 
     model.load_state_dict(new_state_dict, strict=False)
-    if opt.ninput > 1:
-        convert2flow(opt.ninput, model)
 
     return model
 
@@ -246,3 +244,4 @@ def convert_resnet_dcn(state_dict):
         else:
             new_state_dict[k] = state_dict[k]
     return new_state_dict
+

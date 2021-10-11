@@ -142,6 +142,7 @@ class MOCDetector(object):
         flows = None
         images = None
 
+        # Move tensor to device
         if self.rgb_model is not None:
             images = data['images']
             for i in range(len(images)):
@@ -150,7 +151,7 @@ class MOCDetector(object):
             flows = data['flows']
             for i in range(len(flows)):
                 flows[i] = flows[i].to(self.opt.device)
-
+        
         meta = data['meta']
         meta = {k: v.numpy()[0] for k, v in meta.items()}
 

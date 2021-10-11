@@ -9,11 +9,12 @@ from .base_dataset import BaseDataset
 class UCF101(BaseDataset):
     num_classes = 24
 
-    def __init__(self, opt, mode):
-        assert opt.split == 1, "We use only the first split of UCF101"
-        self.ROOT_DATASET_PATH = os.path.join(opt.root_dir, 'data/ucf24')
+    def __init__(self, root_dir, mode, split=1, K=7, ninput=1, resize=(288, 288)):
+        assert split == 1, "We use only the first split of UCF101"
+        self.ROOT_DATASET_PATH = root_dir
         pkl_filename = 'UCF101v2-GT.pkl'
-        super(UCF101, self).__init__(opt, mode, self.ROOT_DATASET_PATH, pkl_filename)
+        super(UCF101, self).__init__(mode, self.ROOT_DATASET_PATH, pkl_filename, split, K, ninput,
+                                             resize_height=resize[0], resize_width=resize[1])
 
     def imagefile(self, v, i):
         return os.path.join(self.ROOT_DATASET_PATH, 'rgb-images', v, '{:0>5}.jpg'.format(i))

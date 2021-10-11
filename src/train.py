@@ -93,12 +93,18 @@ def main(opt):
     stop_step = 0
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
         print('eopch is ', epoch)
+
+        # Training step 
         log_dict_train = trainer.train(epoch, train_loader, train_writer)
+
+        # Write train info to the logs
         logger.write('epoch: {} |'.format(epoch))
         for k, v in log_dict_train.items():
             logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'train')
             logger.write('train: {} {:8f} | '.format(k, v))
         logger.write('\n')
+
+        # Save the best model
         if opt.save_all and not opt.auto_stop:
             time_str = time.strftime('%Y-%m-%d-%H-%M')
             model_name = 'model_[{}]_{}.pth'.format(epoch, time_str)
@@ -112,6 +118,7 @@ def main(opt):
         # this step evaluate the model
         if opt.val_epoch:
             with torch.no_grad():
+                # Validation step
                 log_dict_val = trainer.val(epoch, val_loader, val_writer)
             for k, v in log_dict_val.items():
                 logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'val')

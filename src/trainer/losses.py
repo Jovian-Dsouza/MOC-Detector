@@ -77,3 +77,37 @@ class RegL1Loss(torch.nn.Module):
         loss = F.l1_loss(pred * mask, target * mask, size_average=False)
         loss = loss / (mask.sum() + 1e-4)
         return loss
+
+class MOCLoss(torch.nn.Module):
+    def __init__(self, hm_lambda=1, wh_lambda=1, mov_lambda=0.1):
+        super().__init__()
+        self.crit_hm = FocalLoss()
+        self.crit_mov = RegL1Loss()
+        self.crit_wh = RegL1Loss()
+
+        self.hm_lambda = hm_lambda
+        self.wh_lambda = wh_lambda
+        self.mov_lambda = mov_lambda
+
+    def forward(self, output, batch):
+        output['hm'] = torch.clamp(output['hm'].sigmoid_(), min=1e-4, max=1 - 1e-4)
+
+        hm_loss = self.crit_hm(output['hm'], batch['hm'])
+
+        mov_loss = self.crit_mov(output['mov'], batch['mask'],
+                                 batch['index'], batch['mov'])
+
+        wh_loss = self.crit_wh(output['wh'], batch['mask'],
+                               batch['index'], batch['wh'],
+                               index_all=batch['index_all'])
+
+        loss = self.hm_lambda * hm_loss + self.wh_lambda * wh_loss + self.mov_lambda * mov_loss
+        # MODIFY for pytorch 0.4.0
+        loss = loss.unsqueeze(0)
+        hm_loss = hm_loss.unsqueeze(0)
+        wh_loss = wh_loss.unsqueeze(0)
+        mov_loss = mov_loss.unsqueeze(0)
+
+        loss_stats = {'loss': loss, 'loss_hm': hm_loss,
+                      'loss_mov': mov_loss, 'loss_wh': wh_loss}
+        return loss, loss_stats

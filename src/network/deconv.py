@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import math
 from torch import nn
-from .DCNv2.dcn_v2 import DCN
+# from .DCNv2.dcn_v2 import DCN
+from .DCNv2.my_dcn_v2 import DCN
 
 
 def fill_up_weights(up):

@@ -18,8 +18,8 @@ class Sampler(data.Dataset):
         num_classes = self.num_classes
         input_h = self._resize_height
         input_w = self._resize_width
-        output_h = input_h // self.opt.down_ratio
-        output_w = input_w // self.opt.down_ratio
+        output_h = input_h // self.down_ratio
+        output_w = input_w // self.down_ratio
         # read images
         if self._ninput > 1:
             images = [cv2.imread(self.flowfile(v, min(frame + i, self._nframes[v]))).astype(np.float32) for i in range(K + self._ninput - 1)]
@@ -86,8 +86,8 @@ class Sampler(data.Dataset):
                 gt_bbox[ilabel][itube][:, 3] = gt_bbox[ilabel][itube][:, 3] / original_h * output_h
         images = [cv2.resize(im, (input_w, input_h), interpolation=cv2.INTER_LINEAR) for im in images]
         # transpose image channel and normalize
-        mean = np.tile(np.array(self.opt.mean, dtype=np.float32)[:, None, None], (self._ninput, 1, 1))
-        std = np.tile(np.array(self.opt.std, dtype=np.float32)[:, None, None], (self._ninput, 1, 1))
+        mean = np.tile(np.array(self.mean, dtype=np.float32)[:, None, None], (self._ninput, 1, 1))
+        std = np.tile(np.array(self.std, dtype=np.float32)[:, None, None], (self._ninput, 1, 1))
         for i in range(K):
             for ii in range(self._ninput):
                 data[i][3 * ii:3 * ii + 3, :, :] = np.transpose(images[i + ii], (2, 0, 1))

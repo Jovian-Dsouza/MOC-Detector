@@ -12,7 +12,10 @@ from ACT_utils.ACT_utils import tubelet_in_out_tubes, tubelet_has_gt
 
 class BaseDataset(data.Dataset):
 
-    def __init__(self, opt, mode, ROOT_DATASET_PATH, pkl_filename):
+    def __init__(self, mode, ROOT_DATASET_PATH, pkl_filename, split, K, ninput, resize_height, resize_width,
+                 downratio=4, 
+                 mean=[0.40789654, 0.44719302, 0.47026115],
+                 std=[0.28863828, 0.27408164, 0.27809835]):
 
         super(BaseDataset, self).__init__()
         pkl_file = os.path.join(ROOT_DATASET_PATH, pkl_filename)
@@ -22,15 +25,19 @@ class BaseDataset(data.Dataset):
         for k in pkl:
             setattr(self, ('_' if k != 'labels' else '') + k, pkl[k])
 
-        self.split = opt.split
+        self.split = split
         self.mode = mode
-        self.K = opt.K
-        self.opt = opt
+        self.K = K
+
+        # OPT
+        self.down_ratio = downratio
+        self.mean = mean
+        self.std = std
 
         self._mean_values = [104.0136177, 114.0342201, 119.91659325]
-        self._ninput = opt.ninput
-        self._resize_height = opt.resize_height
-        self._resize_width = opt.resize_width
+        self._ninput = ninput
+        self._resize_height = resize_height
+        self._resize_width = resize_width
 
         assert len(self._train_videos[self.split - 1]) + len(self._test_videos[self.split - 1]) == len(self._nframes)
         self._indices = []

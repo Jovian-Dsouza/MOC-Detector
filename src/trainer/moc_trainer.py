@@ -75,6 +75,7 @@ class MOCTrainer(object):
             if iter >= num_iters:
                 break
 
+            # Move things to gpu
             for k in batch:
                 if k == 'input':
                     assert len(batch[k]) == self.opt.K
@@ -86,6 +87,8 @@ class MOCTrainer(object):
                     # MODIFY for pytorch 0.4.0
                     # batch[k] = batch[k].to(device=opt.device)
                     batch[k] = batch[k].to(device=opt.device, non_blocking=True)
+
+
             output, loss, loss_stats = model_with_loss(batch)
             loss = loss.mean()
             if phase == 'train':
